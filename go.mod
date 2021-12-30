@@ -1,4 +1,4 @@
-module github.com/luo3house/casbin-gorm-repo
+module github.com/luo3house/casbin-adapter-repo
 
 go 1.13
 
