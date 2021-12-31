@@ -28,26 +28,6 @@ var (
 	Repo     IRepo
 )
 
-type CustomizeRepo struct {
-	FnSave      func(*CasbinRule) error
-	FnBatchSave func(*[]CasbinRule) error
-	FnDelete    func(*CasbinRule) error
-	FnFindAll   func() ([]CasbinRule, error)
-}
-
-func (r *CustomizeRepo) Save(rule *CasbinRule) error {
-	return r.FnSave(rule)
-}
-func (r *CustomizeRepo) BatchSave(rules *[]CasbinRule) error {
-	return r.FnBatchSave(rules)
-}
-func (r *CustomizeRepo) Delete(rule *CasbinRule) error {
-	return r.FnDelete(rule)
-}
-func (r *CustomizeRepo) FindAll() ([]CasbinRule, error) {
-	return r.FnFindAll()
-}
-
 func InitEnforcer() {
 	mdl, _ := model.NewModelFromString(Matcher)
 	Enforcer, _ = casbin.NewEnforcer(mdl, Adapter)
@@ -58,7 +38,7 @@ func InitAdapter() {
 }
 
 func TestLoad(t *testing.T) {
-	Repo = &CustomizeRepo{
+	Repo = &SimpleRepoImpl{
 		FnFindAll: func() ([]CasbinRule, error) {
 			return []CasbinRule{
 				// ID, PType, V0, V1, V2, V3, V4, V5
@@ -71,6 +51,7 @@ func TestLoad(t *testing.T) {
 	}
 	InitAdapter()
 	InitEnforcer()
+	Enforcer.LoadPolicy()
 	var ok bool
 	// luo3 can only gaming
 	ok, _ = Enforcer.Enforce("luo3", "learn")
